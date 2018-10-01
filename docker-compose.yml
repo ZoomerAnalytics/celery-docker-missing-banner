@@ -1,0 +1,21 @@
+version: '3'
+services:
+
+  worker:
+    build: .
+    image: &app worker
+    restart: "no"
+    environment: &env
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: ["celery", "worker", "--app=worker.app", "--loglevel=INFO"]
+    volumes:
+      - ./app:/app
+    depends_on:
+      - redis
+    
+  redis:
+    image: redis:4
+    environment: *env
+    ports:
+      - 6379:6379
